@@ -3,7 +3,7 @@ title: "Reproducibility Report for Study by Salamons et al. (2026, Animal Behavi
 author: "Samantha Kefer (skefer@ucsd.edu)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
-  html:
+  pdf:
     toc: true
     toc_depth: 3
 ---
