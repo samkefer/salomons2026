@@ -1,5 +1,5 @@
 ---
-title: "Reproducibility Report for Study X by Salamons et al. (2026, Animal Behaviour)"
+title: "Reproducibility Report for Study by Salamons et al. (2026, Animal Behaviour)"
 author: "Samantha Kefer (skefer@ucsd.edu)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
