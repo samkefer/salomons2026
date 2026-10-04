@@ -20,8 +20,6 @@ format:
 
 The paper by Salomons et al. explains the cognitive development of assistance puppies (aged 8 to 20 weeks) as measured through performance on 9 tasks: marker gesture, working memory, working memory with distraction, auditory discrimination, odor discrimination, cylinder (inhibitory control and reversal learning), unsolvable, causal reasoning, and momentary pointing. The results support the multiple intelligences hypothesis and suggest the emergence of distinct cognitive abilities, with clear developmental breakpoints in marker gesture comprehension, inhibitory control, reversal learning, and eye contact ~16 weeks, coinciding with the period of rapid brain development. I am currently working to develop a battery of tests that can be administered to large numbers of dogs, in the hopes of identifying exceptional performers and determining whether strong performance on one task may generalize across different measures of the same ability and/or across cognitive domains. By reanalyzing these data to ensure reproducibility and simulating additional data to evaluate their strength, I hope to gain further insights that may aid in the creation of a novel dog cognition battery; with the help of citizen science, this method may ultimately identify exceptional dogs.
 
-Please describe why you chose to reproduce the results of this study.
-
 ### Anticipated challenges
 
 Do you anticipate running into any challenges when attempting to reproduce these result(s)? If so please, list them here.
