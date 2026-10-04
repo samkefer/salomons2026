@@ -22,6 +22,9 @@ The paper by Salomons et al. explains the cognitive development of assistance pu
 
 ### Anticipated challenges
 
+As explained above, my plan for this project includes (1) reanalyzing existing data and (2) simulating additional subjects. To reproduce Figure 2, I will plot proportion correct or mean looking time against age, with a LOESS curve for each of the 11 variables. Next, I will use mixed-effects logistic regression models for the 10 correct/incorrect measures and a mixed-effects linear regression for looking time, with subject ID as a random effect, and compare AIC values across models incorporating age, sex, experience, and rearing. Finally, I will test each age group against chance to determine the age each skill emerges and use Mann-Whitney U tests to compare longitudinal and control puppies.
+
+
 Do you anticipate running into any challenges when attempting to reproduce these result(s)? If so please, list them here.
 
 ### Links
