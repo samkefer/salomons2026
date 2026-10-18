@@ -14,7 +14,16 @@ format:
 
 [No abstract is needed.]  Each reproducibility project will have a straightforward, no frills report of the study and reproducibility results. These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole.  Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of your attempt to reproduce the results. Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for your reproducibility attempt, and any other essential information.  It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.  
 
-**Clarify key analysis of interest here**  You can also pre-specify additional analyses you plan to do.
+**Clarify key analysis of interest here**   
+Question: do different cognitive skills develop at different rates in assistance puppies?
+1. Reproduce Figure 2 with LOESS curve
+2. Reproduce per-task models correct ~ age + (1 | puppy_ID) and correct ~ age + experience + (1 | puppy_ID)
+3. Confirmatory mixed-effects logistic model, correct ~ age * task + experience + (1 | puppy_ID)
+  * Key result is age × task interaction (only including data from the 91 longitudinal subjects) 
+  * Significant interaction supports multiple intelligences hypothesis
+4. Calculate effect sizes per task and between tasks (for how much faster one skill develops relative to another)
+5. Data simulation using fitted model (step 3) for N=91 vs N=1000
+6. Plot simulated data with LOESS curves like Figure 2
 
 ### Justification for choice of study
 
