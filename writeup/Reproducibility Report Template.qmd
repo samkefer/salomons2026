@@ -12,11 +12,11 @@ format:
 
 ## Introduction
 
-[No abstract is needed.]  Each reproducibility project will have a straightforward, no frills report of the study and reproducibility results. These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole.  Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of your attempt to reproduce the results. Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for your reproducibility attempt, and any other essential information.  It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.  
+\[No abstract is needed.\] Each reproducibility project will have a straightforward, no frills report of the study and reproducibility results. These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole. Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of your attempt to reproduce the results. Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for your reproducibility attempt, and any other essential information. It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.
 
 ### Justification for choice of study
 
-The paper by Salomons et al. explains the cognitive development of assistance puppies (aged 8 to 20 weeks) as measured through performance on a biweekly battery of 9 tasks: marker gesture, working memory, working memory with distraction, auditory discrimination, odor discrimination, cylinder (inhibitory control and reversal learning), unsolvable, causal reasoning, and momentary pointing. The results support the multiple intelligences hypothesis and suggest the emergence of distinct cognitive abilities, with clear developmental breakpoints in marker gesture comprehension, inhibitory control, reversal learning, and eye contact occurring before 16 weeks, coinciding with the period of rapid brain development. The goal of this project is to answer if different cognitive skills develop at different rates in assistance puppies. The authors, however, chose to model each task separately and compare developmental rate visually rather than test comparisons directly. Using data exclusively from the 91 longitudinal subjects, I will reproduce Figure 2 and directly test whether age-related improvement differs across tasks using an age × task interaction. Next, I will simulate additional data from the fitted model to test whether a study of this size (N=91) can reliably detect these differences or is a larger sample (N=1000) is needed for sufficient power. 
+The paper by Salomons et al. explains the cognitive development of assistance puppies (aged 8 to 20 weeks) as measured through performance on a biweekly battery of 9 tasks: marker gesture, working memory, working memory with distraction, auditory discrimination, odor discrimination, cylinder (inhibitory control and reversal learning), unsolvable, causal reasoning, and momentary pointing. The results support the multiple intelligences hypothesis and suggest the emergence of distinct cognitive abilities, with clear developmental breakpoints in marker gesture comprehension, inhibitory control, reversal learning, and eye contact occurring before 16 weeks, coinciding with the period of rapid brain development. The goal of this project is to answer if different cognitive skills develop at different rates in assistance puppies. The authors, however, chose to model each task separately and compare developmental rate visually rather than test comparisons directly. Using data exclusively from the 91 longitudinal subjects, I will reproduce Figure 2 and directly test whether age-related improvement differs across tasks using an age × task interaction. Next, I will simulate additional data from the fitted model to test whether a study of this size (N=91) can reliably detect these differences or is a larger sample (N=1000) is needed for sufficient power.
 
 I am currently working to develop a battery of tests that can be administered to large numbers of dogs, in the hopes of identifying exceptional performers and determining whether strong performance on one task may generalize across different measures of the same ability and/or across cognitive domains. Knowing when different skills emerge will inform when puppies should be tested, and between-task correlations will suggest whether performance may generalize across domains. With the help of citizen science, this method may ultimately identify exceptional dogs.
 
@@ -24,23 +24,24 @@ I am currently working to develop a battery of tests that can be administered to
 
 As explained above, my plan for this project includes (1) reanalyzing existing data from the 91 longitudinal puppies and (2) simulating additional subjects. My plan for this project will include 6 steps:
 
-1. Reproduce Figure 2 with LOESS curve
-2. Reproduce per-task models correct ~ age + (1 | puppy_ID) and correct ~ age + experience + (1 | puppy_ID)
-3. Confirmatory mixed-effects logistic model, correct ~ age * task + (1 | puppy_ID) + (1 | puppy_ID:task)
-    * Key result is age × task interaction (only including data from the 91 longitudinal subjects, so age and experience will confound) 
-    * Significant interaction supports multiple intelligences hypothesis
-4. Calculate effect sizes per task and between tasks (for how much faster one skill develops relative to another)
-5. Data simulation using fitted model (step 3) for N=91 vs N=1000
-6. Plot simulated data with LOESS curves like Figure 2
+1.  Reproduce Figure 2 with LOESS curve
+2.  Reproduce per-task models correct \~ age + (1 \| puppy_ID) and correct \~ age + experience + (1 \| puppy_ID)
+3.  Confirmatory mixed-effects logistic model, correct \~ age \* task + (1 \| puppy_ID) + (1 \| puppy_ID:task)
+    - Key result is age × task interaction (only including data from the 91 longitudinal subjects, so age and experience will confound)
+    - Significant interaction supports multiple intelligences hypothesis
+4.  Calculate effect sizes per task and between tasks (for how much faster one skill develops relative to another)
+5.  Data simulation using fitted model (step 3) for N=91 vs N=1000
+6.  Plot simulated data with LOESS curves like Figure 2
 
-My reproduction will be successful if curves match Figure 2, betas are within +/- 0.01 of the reported, and a find the same best-AIC model per task. My simulation will be successful if slopes show little bias, I can get ~95% CI coverage, and ~80% power for interaction, ideally at N=91. 
+My reproduction will be successful if curves match Figure 2, betas are within +/- 0.01 of the reported, and a find the same best-AIC model per task. My simulation will be successful if slopes show little bias, I can get \~95% CI coverage, and \~80% power for interaction, ideally at N=91.
 
-I anticipate running into a few challenges when attempting to reproduce these results. First, age and experience are highly intertwined since they increase together for all longitudinal subjects. In addition, many of the dogs are siblings, half-siblings, cousins, etc. and this relatedness is not included in the dataset and may be a confound. Finally, of the 11 measures, 10 are binary responses (score out of 4 trials) and one is average looking time, thus I am considering removing the last measure from my simulation for ease. The biggest challenge, however, will be actually completing this project given my minimal programming knowledge and experience.  
+I anticipate running into a few challenges when attempting to reproduce these results. First, age and experience are highly intertwined since they increase together for all longitudinal subjects. In addition, many of the dogs are siblings, half-siblings, cousins, etc. and this relatedness is not included in the dataset and may be a confound. Finally, of the 11 measures, 10 are binary responses (score out of 4 trials) and one is average looking time, thus I am considering removing the last measure from my simulation for ease. The biggest challenge, however, will be actually completing this project given my minimal programming knowledge and experience.
 
 ### Learning Goals
-* learn to fit and interpret mixed-effects models for the data
-* learn how to write a simulation function that generates correlated data across all 11 measures for the same subject
-* learn how to use simulation to test how sample size and testing schedule affect power (directly applies to planning my future project)
+
+- learn to fit and interpret mixed-effects models for the data
+- learn how to write a simulation function that generates correlated data across all 11 measures for the same subject
+- learn how to use simulation to test how sample size and testing schedule affect power (directly applies to planning my future project)
 
 ### Links
 
@@ -52,7 +53,7 @@ Original paper (as hosted in your repo): https://github.com/samkefer/salomons202
 
 ### Description of the steps required to reproduce the results
 
-Please describe all the steps necessary to reproduce the key result(s) of this study. 
+Please describe all the steps necessary to reproduce the key result(s) of this study.
 
 ### Differences from original study
 
@@ -64,18 +65,16 @@ Explicitly describe known differences in the analysis pipeline between the origi
 
 Please describe the outcome measure for the success or failure of your reproduction and how this outcome will be computed.
 
-
 ### Pipeline progress
 
 Earlier in this report, you described the steps necessary to reproduce the key result(s) of this study. Please describe your progress on each of these steps (e.g., data preprocessing, model fitting, model evaluation).
-
 
 ## Results
 
 ### Data preparation
 
 Data preparation following the analysis plan.
-	
+
 ```{r include=F}
 ### Data Preparation
 
@@ -90,20 +89,20 @@ Data preparation following the analysis plan.
 
 ### Key analysis
 
-The analyses as specified in the analysis plan.  
+The analyses as specified in the analysis plan.
 
 *Side-by-side graph with original graph is ideal here*
 
 ### Exploratory analyses
 
-Any follow-up analyses desired (not required).  
+Any follow-up analyses desired (not required).
 
 ## Discussion
 
 ### Summary of Reproduction Attempt
 
-Open the discussion section with a paragraph summarizing the primary result from the key analysis and assess whether you successfully reproduced it, partially reproduced it, or failed to reproduce it.  
+Open the discussion section with a paragraph summarizing the primary result from the key analysis and assess whether you successfully reproduced it, partially reproduced it, or failed to reproduce it.
 
 ### Commentary
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis of the dataset, (b) assessment of the meaning of the successful or unsuccessful reproducibility attempt - e.g., for a failure to reproduce the original findings, are the differences between original and present analyses ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the reproducibility attempt (if you contacted them).  None of these need to be long.
+Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis of the dataset, (b) assessment of the meaning of the successful or unsuccessful reproducibility attempt - e.g., for a failure to reproduce the original findings, are the differences between original and present analyses ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the reproducibility attempt (if you contacted them). None of these need to be long.
