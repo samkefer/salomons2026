@@ -3,3 +3,31 @@ title: "Reproduce"
 output: html_document
 ---
 
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+auditory <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Auditory_Discrimination.csv")
+
+causal <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Causal_Reasoning.csv")
+
+detour <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Cylinder_Inhibitory_Control.csv")
+
+reversal <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Cylinder_Reversal_Learning.csv")
+
+marker <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Marker_Gesture.csv")
+
+momentary <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Momentary_Pointing.csv")
+
+odor <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Odor_Discrimination.csv")
+
+unsolvable <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Unsolvable_Eye_Contact.csv")
+
+workingmem <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Working_Memory_Delay.csv")
+
+distraction <- read_csv ("~/Documents/salomons2026/Data/CleanedData/CleanedData_Working_Memory_Distraction.csv")
+
+```
+
