@@ -20,8 +20,9 @@ execute:
 library(tidyverse)
 library(readxl)
 install.packages("patchwork")
-library(patchwork)
-
+  library(patchwork)
+install.packages("lme4")
+  library(lme4)
 ```
 
 ```{r load_data}
@@ -54,7 +55,8 @@ auditory_long <- auditory |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 auditory_plot <- auditory_long|>
@@ -79,7 +81,8 @@ causal_long <- causal |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 causal_plot <- causal_long|>
@@ -106,7 +109,8 @@ detour_long <- detour |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 detour_plot <- detour_long|>
@@ -133,7 +137,8 @@ distraction_long <- distraction |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 distraction_plot <- distraction_long|>
@@ -160,7 +165,8 @@ marker_long <- marker |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 marker_plot <- marker_long|>
@@ -187,7 +193,8 @@ momentary_long <- momentary |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 momentary_plot <- momentary_long|>
@@ -214,7 +221,8 @@ odor_long <- odor |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 odor_plot <- odor_long|>
@@ -241,7 +249,8 @@ reversal_long <- reversal |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 reversal_plot <- reversal_long|>
@@ -268,7 +277,8 @@ unsolvable_long <- unsolvable |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
     `Proportion Trials Looked` = as.numeric(`Proportion Trials Looked`),
-    `Mean Look Time` = as.numeric(`Mean Look Time`)
+    `Mean Look Time` = as.numeric(`Mean Look Time`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 proplooked_plot <- unsolvable_long|>
@@ -312,7 +322,8 @@ workingmem_long <- workingmem |>
   filter(Status=="Longitudinal") |>
    mutate(
     `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`)
+    `Proportion Correct` = as.numeric(`Proportion Correct`),
+     `experience` = as.numeric(`# Prior Test Sessions`)
   )
 
 workingmem_plot <- workingmem_long|>
@@ -341,7 +352,7 @@ print(workingmem_plot)
 (auditory_plot | odor_plot       | detour_plot)      /
 (reversal_plot | looktime_plot   | proplooked_plot)  /
 (causal_plot   | momentary_plot  | plot_spacer())& 
-  theme_grey(base_family = "serif") +
+  theme_grey(base_family = "serif") + #match theme to original
   theme(
     plot.title = element_text(hjust = 0.5, size = 11),
     axis.line  = element_line(colour = "black"),
@@ -350,3 +361,37 @@ print(workingmem_plot)
   )
 
 ```
+
+# Per-Task Models
+
+```{r models}
+task_models <- function(df2) {
+  df2 <- df2 |>
+  mutate(experience = `# Prior Test Sessions`)
+  
+m_age  <- glmer(cbind(`Proportion Correct`) ~ `Age (wks)` + (1 | `Dog ID`),
+                  family = binomial, data = df2 )
+m_exp  <- glmer(cbind(`Proportion Correct`) ~ `Age (wks)` + experience + (1 | `Dog ID`),
+                  family = binomial, data = df2 ) 
+
+tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp))
+  }
+
+bind_rows(
+  "Marker gesture"               = task_models(marker),
+  "Working memory (Delay)"       = task_models(workingmem),
+  "Working memory (Distraction)" = task_models(distraction),
+  "Auditory discrimination"      = task_models(auditory),
+  "Odor discrimination"         = task_models(odor),
+  "Cylinder: inhibitory control" = task_models(detour),
+  "Cylinder: reversal learning"  = task_models(reversal),
+  "Causal reasoning"             = task_models(causal),
+  "Momentary pointing"           = task_models(momentary),
+.id="Task") |>
+  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+
+```
+
+`correct ~ age + (1 | puppy_ID)` is better for Marker gesture and Momentary pointing
+
+`correct ~ age + experience + (1 | puppy_ID)` is better for both working memory tasks (delay and distraction), both sensory discrimination tasks (auditory and odor), both cylinder tasks (detour and reversal), and causal reasoning
