@@ -1,0 +1,350 @@
+---
+title: "Reproducibility Report for Study by Salamons et al. (2026, Animal Behaviour)"
+subtitle: "Reproduce Figure 2"
+author: "Samantha Kefer"
+date: today
+format:
+  pdf:
+    toc: true
+    toc-location: left
+    embed-resources: true
+execute:
+  error: true
+---
+
+# Load
+
+```{r load_packages}
+library(tidyverse)
+library(readxl)
+install.packages("patchwork")
+library(patchwork)
+
+```
+
+```{r load_data}
+auditory <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Auditory_Discrimination.csv")
+
+causal <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Causal_Reasoning.csv")
+
+detour <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Cylinder_Inhibitory_Control.csv")
+
+reversal <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Cylinder_Reversal_Learning.csv")
+
+marker <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Marker_Gesture.csv")
+
+momentary <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Momentary_Pointing.csv")
+
+odor <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Odor_Discrimination.csv")
+
+unsolvable <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Unsolvable_Eye_Contact.csv")
+
+workingmem <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Working_Memory_Delay.csv")
+
+distraction <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData_Working_Memory_Distraction.csv")
+
+```
+
+# Individual Plots
+
+```{r auditory_plot}
+auditory_long <- auditory |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+auditory_plot <- auditory_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Auditory Discrimination")
+```
+
+```{r causal_plot}
+causal_long <- causal |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+causal_plot <- causal_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "Age (weeks)",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Causal Reasoning")
+
+print(causal_plot)
+```
+
+```{r detour_plot}
+detour_long <- detour |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+detour_plot <- detour_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Cylinder: Inhibitory Control")
+
+print(detour_plot)
+```
+
+```{r distraction_plot}
+distraction_long <- distraction |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+distraction_plot <- distraction_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2),
+    labels = as.character
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25)
+  ) +
+  labs(title = "Working Memory (Distraction)")
+
+print(distraction_plot)
+```
+
+```{r marker_plot}
+marker_long <- marker |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+marker_plot <- marker_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Marker Gesture")
+
+print(marker_plot)
+```
+
+```{r momentary_plot}
+momentary_long <- momentary |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+momentary_plot <- momentary_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "Age (weeks)",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Momentary Pointing")
+
+print(momentary_plot)
+```
+
+```{r odor_plot}
+odor_long <- odor |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+odor_plot <- odor_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Odor Discrimination")
+
+print(odor_plot)
+```
+
+```{r reversal_plot}
+reversal_long <- reversal |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+reversal_plot <- reversal_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25)
+  ) +
+  labs(title = "Cylinder: Reversal Learning")
+
+print(reversal_plot)
+```
+
+```{r unsolvable_plots}
+unsolvable_long <- unsolvable |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Trials Looked` = as.numeric(`Proportion Trials Looked`),
+    `Mean Look Time` = as.numeric(`Mean Look Time`)
+  )
+
+proplooked_plot <- unsolvable_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Trials Looked`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "Age (weeks)",    
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Unsolvable (Proportion Looked)")
+
+looktime_plot <- unsolvable_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Mean Look Time`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name = "",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    name = "Mean Look Time (s)",
+    limits = c(0, 20), 
+    breaks = seq(0, 20, by = 5)
+  ) +
+  labs(title = "Unsolvable (Looking Time)")
+
+print(proplooked_plot)
+print(looktime_plot)
+```
+
+```{r workingmem_plot}
+workingmem_long <- workingmem |>
+  filter(Status=="Longitudinal") |>
+   mutate(
+    `Age (wks)` = as.numeric(`Age (wks)`),
+    `Proportion Correct` = as.numeric(`Proportion Correct`)
+  )
+
+workingmem_plot <- workingmem_long|>
+  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
+  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
+  geom_smooth(method="loess", color = "black") +
+  scale_x_continuous(
+    name ="",
+    limits = c(8, 20), 
+    breaks = seq(8, 20, by = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1), 
+    breaks = seq(0, 1, by = 0.25),
+    labels = as.character
+  ) +
+  labs(title = "Working Memory (Delay)")
+
+print(workingmem_plot)
+```
+
+# Figure 2
+
+```{r Fig2, fig.width = 10, fig.height = 12}
+(marker_plot   | workingmem_plot | distraction_plot) /
+(auditory_plot | odor_plot       | detour_plot)      /
+(reversal_plot | looktime_plot   | proplooked_plot)  /
+(causal_plot   | momentary_plot  | plot_spacer())& 
+  theme_grey(base_family = "serif") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 11),
+    axis.line  = element_line(colour = "black"),
+    axis.title = element_text(size = 10),
+    axis.text  = element_text(size = 9, colour = "black")
+  )
+
+```
