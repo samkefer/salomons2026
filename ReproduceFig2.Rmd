@@ -4,10 +4,12 @@ subtitle: "Reproduce Figure 2"
 author: "Samantha Kefer"
 date: today
 format:
-  pdf:
+  html:
     toc: true
     toc-location: left
     embed-resources: true
+  pdf:
+    toc: true
 execute:
   error: true
 ---
