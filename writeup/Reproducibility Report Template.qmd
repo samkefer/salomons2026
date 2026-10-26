@@ -1,5 +1,5 @@
 ---
-title: "Reproducibility Report for Study by Salamons et al. (2026, Animal Behaviour)"
+title: "Reproducibility Report for Study by Salomons et al. (2026, Animal Behaviour)"
 author: "Samantha Kefer (skefer@ucsd.edu)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
@@ -29,7 +29,7 @@ As explained above, my plan for this project includes (1) reanalyzing existing d
 3.  Confirmatory mixed-effects logistic model, correct \~ age \* task + (1 \| puppy_ID) + (1 \| puppy_ID:task)
     - Key result is age × task interaction (only including data from the 91 longitudinal subjects, so age and experience will confound)
     - Significant interaction supports multiple intelligences hypothesis
-4.  Calculate effect sizes per task and between tasks (for how much faster one skill develops relative to another)
+4.  Calculate (for how much faster one skill develops relative to another)
 5.  Data simulation using fitted model (step 3) for N=91 vs N=1000
 6.  Plot simulated data with LOESS curves like Figure 2
 

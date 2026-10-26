@@ -1,5 +1,5 @@
 ---
-title: "Reproducibility Report for Study by Salamons et al. (2026, Animal Behaviour)"
+title: "Reproducibility Report for Study by Salomons et al. (2026, Animal Behaviour)"
 subtitle: "Reproduce Figure 2"
 author: "Samantha Kefer"
 date: today
@@ -48,7 +48,9 @@ distraction <- read_csv ("~/Documents/salomons2026/Data/CleanedTests/CleanedData
 
 ```
 
-# Individual Plots
+# Reproducibility
+
+## Individual Plots
 
 ```{r auditory_plot}
 auditory_long <- auditory |>
@@ -347,7 +349,7 @@ workingmem_plot <- workingmem_long|>
 print(workingmem_plot)
 ```
 
-# Figure 2
+## Figure 2
 
 ```{r Fig2, fig.width = 10, fig.height = 12}
 (marker_plot   | workingmem_plot | distraction_plot) /
@@ -364,7 +366,9 @@ print(workingmem_plot)
 
 ```
 
-# Per-Task Models (Longitudinal)
+## Reproduce per-task models
+
+### Longitudinal only
 
 ```{r models_long}
 task_models <- function(df) {
@@ -447,7 +451,7 @@ aic_tibble3
 
 - Momentary Pointing (AIC = `r round(aic_tibble$AIC_age_exp[aic_tibble$Task == "Momentary pointing"], 1)`).
 
-# Per-Task Models (Longitudinal + Control, like paper)
+### Longitudinal + Control, like paper
 
 ```{r models_all}
 task_models2 <- function(df2) {
@@ -530,7 +534,7 @@ aic_tibble6
 
 - Unsolvable Average Looking Time (AIC = `r round(aic_tibble6$AIC_age_exp, 1)`).
 
-# Model Build Up (for 9 two-choice tasks)
+## Confirmatory mixed-effects logistic model
 
 ```{r confirmatory_data}
 
@@ -588,14 +592,14 @@ m_final <- m3
 
 # KEY RESULT: age x task interaction
 m_final_noint <- update(m_final, . ~ . - age:task)
-anova(m_final_noint, m_final)
+lrt_m3 <-anova(m_final_noint, m_final)
 
 # m1 has marginally lower AIC so using as robustness check
 m_final2 <- m1
 
 # age x task interaction
 m_final2_noint <- update(m_final2, . ~ . - age:task)
-anova(m_final2_noint, m_final2)
+lrt_m1 <- anova(m_final2_noint, m_final2)
 
 ```
 
@@ -632,6 +636,56 @@ lrt_ae <- anova(m_ae_noint, m_ae)
 lrt_ae
 ```
 
-The age × task interaction was significant in the random-slope model (m3), χ²(`r lrt_m3$Df[2]`) = `r round(lrt_m3$Chisq[2], 2)`, p `r format.pval(lrt_m3$"Pr(>Chisq)"[2], digits = 2, eps = .001)`, and in the random-intercepts model (m1), χ²(`r lrt_m1$Df[2]`) = `r round(lrt_m1$Chisq[2], 2)`, p `r format.pval(lrt_m1$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. This indicates that the 9 tasks do not share one developmental rate, consistent with the multiple intelligences hypothesis. Because age and experience are highly correlated in the longitudinal puppies (r = `r round(r_age_exp, 2)`), this model cannot disentangle the model whether these task differences reflect maturation, accumulated testing experience, or both.
+The age × task interaction was significant in the random-slope model (m3), \$\\chi\^2\$(`r lrt_m3$Df[2]`) = `r round(lrt_m3$Chisq[2], 2)`, p `r format.pval(lrt_m3$"Pr(>Chisq)"[2], digits = 2, eps = .001)`, and in the random-intercepts model (m1), \$\\chi\^2\$ (`r lrt_m1$Df[2]`) = `r round(lrt_m1$Chisq[2], 2)`, p `r format.pval(lrt_m1$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. This indicates that the 9 tasks do not share one developmental rate, consistent with the multiple intelligences hypothesis. Because age and experience are highly correlated in the longitudinal puppies (r = `r round(r_age_exp, 2)`), this model cannot disentangle the model whether these task differences reflect maturation, accumulated testing experience, or both.
 
-After adding the 22 control puppies and task-specific experience effects, the age × task interaction was still significant, χ²(`r lrt_ae$Df[2]`) = `r round(lrt_ae$Chisq[2], 2)`, p `r format.pval(lrt_ae$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. While part of the longitudinal age × task interaction effect may be shared with experience , the results from the 113-subject sample further support the multiple intelligences hypothesis, although age and experience remain partly correlated (r = `r round(cor(all_tasks_all$age, all_tasks_all$experience), 2)`).
+After adding the 22 control puppies and task-specific experience effects, the age × task interaction was still significant, \$\\chi\^2\$ (`r lrt_ae$Df[2]`) = `r round(lrt_ae$Chisq[2], 2)`, p `r format.pval(lrt_ae$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. While part of the longitudinal age × task interaction effect may be shared with experience , the results from the 113-subject sample further support the multiple intelligences hypothesis, although age and experience remain partly correlated (r = `r round(cor(all_tasks_all$age, all_tasks_all$experience), 2)`).
+
+## Effect Sizes (Longitudinal)
+
+```{r}
+install.packages("emmeans")
+library(emmeans)
+
+# slopes on the probability scale
+slopes <- emtrends(m_final, ~ task, var = "age")
+slopes_table <- as_tibble(slopes) |>
+  mutate(OR_per_week = exp(age.trend))
+slopes_table
+
+# age slope per task on the log-odds scale
+slopes_prob <- emtrends(m_final, ~ task, var = "age", regrid = "response")
+slopes_prob
+
+prob_table <- as_tibble(slopes_prob) |>
+  select(task, prob_per_week = age.trend)
+
+effect_table <- as_tibble(slopes) |>
+  transmute(task,
+            OR      = exp(age.trend),
+            OR_low  = exp(asymp.LCL),
+            OR_high = exp(asymp.UCL)) |>
+  left_join(prob_table, by = "task") |>
+  arrange(desc(OR)) |>
+  transmute(Task = task,
+            `OR per week [95% CI]` = sprintf("%.2f [%.2f, %.2f]", OR, OR_low, OR_high),
+            `Change in proportion correct per week` = sprintf("%+.3f", prob_per_week))
+effect_table
+```
+
+```{r pairwise}
+# pairwise comparisons between tasks (Tukey-adjusted)
+between_tasks <- as_tibble(pairs(slopes)) |>
+  mutate(ratio_of_ORs = exp(estimate))
+between_tasks
+
+between_tasks_sig <- between_tasks |>
+  mutate(sig = p.value<0.05) |>
+  count(sig == "TRUE")
+between_tasks_sig
+```
+
+Each task's age slope is reported as an odds ratio (OR) per week. Effects were largest for cylinder inhibitory control (OR \[95% CI\] = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Cylinder: inhibitory control"]`), cylinder reversal learning (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Cylinder: reversal learning"]`), and causal reasoning (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Causal reasoning"]`); smaller for marker gesture (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Marker gesture"]`), working memory with distraction (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Working memory (Distraction)"]`), and working memory with delay (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Working memory (Delay)"]`); absent for momentary pointing (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Momentary pointing"]`); and slightly negative for auditory discrimination (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Auditory discrimination"]`) and odor discrimination (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Odor discrimination"]`).
+
+When using a probability scale to look at proportion correct by age, cylinder inhibitory control increased by about 4 percentage points per week, less than cylinder reversal learning (about 6 points per week), likely because scores already neared cieling by mid-testing. Comparing tasks directly showed that most developed at significantly different rates (significant for 28 of 36 comparisons), again reflecting the multiple intelligences hypothesis. For example, cylinder inhibitory control improved `r round(between_tasks$ratio_of_ORs[between_tasks$contrast == "Cylinder: inhibitory control - Odor discrimination"], 2)` times faster per week than odor discrimination (p \< .001), whereas causal reasoning and reversal learning developed at similar rates (ratio = `r round(between_tasks$ratio_of_ORs[between_tasks$contrast == "Causal reasoning - Cylinder: reversal learning"], 2)`, p = `r round(between_tasks$p.value[between_tasks$contrast == "Causal reasoning - Cylinder: reversal learning"], 2)`).
+
+# Data Simulation

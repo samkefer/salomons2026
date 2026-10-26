@@ -1,0 +1,19 @@
+\contentsline {subsection}{\nonumberline Introduction}{1}{subsection*.1}%
+\contentsline {subsubsection}{\nonumberline Justification for choice of study}{2}{subsubsection*.2}%
+\contentsline {subsubsection}{\nonumberline Anticipated challenges}{2}{subsubsection*.3}%
+\contentsline {subsubsection}{\nonumberline Learning Goals}{3}{subsubsection*.4}%
+\contentsline {subsubsection}{\nonumberline Links}{3}{subsubsection*.5}%
+\contentsline {subsection}{\nonumberline Methods}{3}{subsection*.6}%
+\contentsline {subsubsection}{\nonumberline Description of the steps required to reproduce the results}{3}{subsubsection*.7}%
+\contentsline {subsubsection}{\nonumberline Differences from original study}{4}{subsubsection*.8}%
+\contentsline {subsection}{\nonumberline Project Progress Check 1}{4}{subsection*.9}%
+\contentsline {subsubsection}{\nonumberline Measure of success}{4}{subsubsection*.10}%
+\contentsline {subsubsection}{\nonumberline Pipeline progress}{4}{subsubsection*.11}%
+\contentsline {subsection}{\nonumberline Results}{4}{subsection*.12}%
+\contentsline {subsubsection}{\nonumberline Data preparation}{4}{subsubsection*.13}%
+\contentsline {subsubsection}{\nonumberline Key analysis}{4}{subsubsection*.14}%
+\contentsline {subsubsection}{\nonumberline Exploratory analyses}{4}{subsubsection*.15}%
+\contentsline {subsection}{\nonumberline Discussion}{5}{subsection*.16}%
+\contentsline {subsubsection}{\nonumberline Summary of Reproduction Attempt}{5}{subsubsection*.17}%
+\contentsline {subsubsection}{\nonumberline Commentary}{5}{subsubsection*.18}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 
