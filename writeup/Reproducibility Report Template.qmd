@@ -560,7 +560,7 @@ aic_tibble6
 
 - Odor Discrimination (AIC = `r round(aic_tibble4$AIC_age[aic_tibble4$Task == "Odor discrimination"], 1)`)
 
-- Momentary Pointing (AIC = `r round(aic_tibble4$AIC_age[aic_tibble4$Task == "Momentary Pointing"], 1)`)
+- Momentary Pointing (AIC = `r round(aic_tibble4$AIC_age[aic_tibble4$Task == "Momentary pointing"], 1)`)
 
 `correct ~ age + experience + (1 | puppy_ID)` is better for:
 
