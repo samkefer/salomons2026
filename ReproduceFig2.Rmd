@@ -19,9 +19,7 @@ execute:
 ```{r load_packages}
 library(tidyverse)
 library(readxl)
-install.packages("patchwork")
   library(patchwork)
-install.packages("lme4")
   library(lme4)
 ```
 
@@ -643,7 +641,6 @@ After adding the 22 control puppies and task-specific experience effects, the ag
 ## Effect Sizes (Longitudinal)
 
 ```{r}
-install.packages("emmeans")
 library(emmeans)
 
 # slopes on the probability scale
