@@ -128,11 +128,13 @@ auditory_plot <- auditory_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -154,11 +156,13 @@ causal_plot <- causal_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "Age (weeks)",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -182,11 +186,13 @@ detour_plot <- detour_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -208,12 +214,14 @@ distraction_plot <- distraction_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2),
     labels = as.character
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -235,11 +243,13 @@ marker_plot <- marker_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -261,11 +271,13 @@ momentary_plot <- momentary_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "Age (weeks)",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -287,11 +299,13 @@ odor_plot <- odor_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -313,11 +327,13 @@ reversal_plot <- reversal_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -340,11 +356,13 @@ proplooked_plot <- unsolvable_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "Age (weeks)",    
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -356,12 +374,14 @@ looktime_plot <- unsolvable_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name = "",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     name = "Mean Look Time (s)",
     limits = c(0, 20), 
+    oob = scales::oob_keep,
     breaks = seq(0, 20, by = 5)
   ) +
   labs(title = "Unsolvable (Looking Time)")
@@ -382,11 +402,13 @@ workingmem_plot <- workingmem_long|>
   geom_smooth(method="loess", color = "black") +
   scale_x_continuous(
     name ="",
-    limits = c(8, 20), 
+    limits = c(8, 21), 
+    oob = scales::oob_keep,
     breaks = seq(8, 20, by = 2)
   ) +
   scale_y_continuous(
     limits = c(0, 1), 
+    oob = scales::oob_keep,
     breaks = seq(0, 1, by = 0.25),
     labels = as.character
   ) +
@@ -819,11 +841,13 @@ plot_task <- function(df, title, x_name = "", alpha = 0.2) {
     geom_smooth(method = "loess", color = "black") +
     scale_x_continuous(
       name = x_name,
-      limits = c(8, 20),
+      limits = c(8, 21),
+      oob = scales::oob_keep,
       breaks = seq(8, 20, by = 2)
     ) +
     scale_y_continuous(
       limits = c(0, 1),
+      oob = scales::oob_keep,
       breaks = seq(0, 1, by = 0.25),
       labels = as.character
     ) +
