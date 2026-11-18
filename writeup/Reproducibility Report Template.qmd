@@ -84,6 +84,7 @@ library(tidyverse)
 library(readxl)
 library(patchwork)
 library(lme4)
+library(assertthat)
 ```
 
 ```{r load_data}
@@ -430,6 +431,7 @@ workingmem_plot <- workingmem_long|>
     axis.text  = element_text(size = 9, colour = "black")
   )
 
+assert_that
 ```
 
 #### Reproduce per-task models
@@ -608,6 +610,8 @@ r_age_exp <- bind_rows(marker_long, workingmem_long, distraction_long, auditory_
   summarise(r = cor(`Age (wks)`, `# Prior Test Sessions`)) |>
   pull(r)
 
+assert_that(n_distinct(all_tasks$id, na.rm = TRUE) == 91) #TRUE
+
 ```
 
 ```{r model_buildup}
@@ -679,6 +683,8 @@ m_ae <- glmer(cbind(correct, total - correct) ~ age * task + experience * task +
 m_ae_noint <- update(m_ae, . ~ . - age:task)
 lrt_ae <- anova(m_ae_noint, m_ae)
 lrt_ae
+
+assert_that(n_distinct(all_tasks_all$id, na.rm = TRUE) == 113) #TRUE
 ```
 
 The age × task interaction was significant in the random-slope model (m3), \$\\chi\^2\$(`r lrt_m3$Df[2]`) = `r round(lrt_m3$Chisq[2], 2)`, p `r format.pval(lrt_m3$"Pr(>Chisq)"[2], digits = 2, eps = .001)`, and in the random-intercepts model (m1), \$\\chi\^2\$ (`r lrt_m1$Df[2]`) = `r round(lrt_m1$Chisq[2], 2)`, p `r format.pval(lrt_m1$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. This indicates that the 9 tasks do not share one developmental rate, consistent with the multiple intelligences hypothesis. Because age and experience are highly correlated in the longitudinal puppies (r = `r round(r_age_exp, 2)`), this model cannot disentangle the model whether these task differences reflect maturation, accumulated testing experience, or both.
@@ -892,6 +898,8 @@ anova(update(m1_sim1000, . ~ . - age:task), m1_sim1000) #sig agextask for n=1000
 ### Key analysis
 
 The analyses as specified in the analysis plan.
+
+`knitr::include_graphics(og_vis)` `knitr::include_graphics(sim_vis)`
 
 ### Exploratory analyses
 
