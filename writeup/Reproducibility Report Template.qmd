@@ -711,13 +711,13 @@ After adding the 22 control puppies and task-specific experience effects, the ag
 ```{r}
 library(emmeans)
 
-# slopes on the probability scale
+# age slope per task on the log-odds scale (exp() gives odds ratios)
 slopes <- emtrends(m_final, ~ task, var = "age")
 slopes_table <- as_tibble(slopes) |>
   mutate(OR_per_week = exp(age.trend))
 slopes_table
 
-# age slope per task on the log-odds scale
+# age slope per task on the probability scale
 slopes_prob <- emtrends(m_final, ~ task, var = "age", regrid = "response")
 slopes_prob
 
