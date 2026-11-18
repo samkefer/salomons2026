@@ -803,15 +803,26 @@ print(m1_check) #yay
 
 ```{r side-by-side_graphs, fig.width = 10, fig.height = 9}
 
-  (marker_plot   | workingmem_plot | distraction_plot) /
-  (auditory_plot | odor_plot       | detour_plot)      /
-  (reversal_plot | causal_plot   | momentary_plot)  +
+og_vis <- wrap_plots(
+  marker_plot,   workingmem_plot, distraction_plot,
+  auditory_plot, odor_plot,       detour_plot,
+  reversal_plot, causal_plot,     momentary_plot,
+  ncol = 3
+) +
+  plot_layout(axis_titles = "collect") +
   plot_annotation(
-    title = "Original Data",
-    theme = theme(
-      plot.title = element_text(size = 20, hjust = 0.5)
-    )
+    title = "Original Data (N = 91)",
+    theme = theme(plot.title = element_text(size = 20, hjust = 0.5))
+  ) &
+  labs(x = "Age (weeks)", y = "Proportion Correct") &
+  theme(
+    axis.text  = element_text(size = 14),  
+    axis.title = element_text(size = 16)  
   )
+
+ggsave("og_vis.png", og_vis,
+       width = 14, height = 12, units = "in", dpi = 300, bg = "white")
+
 
 plot_task <- function(df, title, x_name = "", alpha = 0.2) {
   df |>
@@ -849,16 +860,28 @@ reversal_sim    <- sim_task("Cylinder: reversal learning",  "Cylinder: Reversal 
 causal_sim      <- sim_task("Causal reasoning",             "Causal Reasoning",            "Age (weeks)")
 momentary_sim   <- sim_task("Momentary pointing",           "Momentary Pointing",          "Age (weeks)")
 
-  (marker_sim   | workingmem_sim | distraction_sim) /
-  (auditory_sim | odor_sim       | detour_sim)      /
-  (reversal_sim | causal_sim     | momentary_sim)  +
+sim_vis <- wrap_plots(
+  marker_sim,   workingmem_sim, distraction_sim,
+  auditory_sim, odor_sim,       detour_sim,
+  reversal_sim, causal_sim,     momentary_sim,
+  ncol = 3
+) +
+  plot_layout(axis_titles = "collect") +
   plot_annotation(
     title = "Simulated Data (N = 1000)",
-    theme = theme(
-      plot.title = element_text(size = 20, hjust = 0.5)
-    )
+    theme = theme(plot.title = element_text(size = 20, hjust = 0.5))
+  ) &
+  labs(x = "Age (weeks)", y = "Proportion Correct") &
+  theme(
+    axis.text  = element_text(size = 14),  # tick labels (8, 10, 0.25, ...)
+    axis.title = element_text(size = 16)   # "Age (weeks)", "Proportion Correct"
   )
+
+ggsave("sim_vis.png", sim_vis,
+       width = 14, height = 12, units = "in", dpi = 300, bg = "white")
 ```
+
+\
 
 ```{r agextask_simulated}
 
