@@ -569,7 +569,7 @@ aic_tibble3 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
 aic_tibble3
 ```
 
-```{r as_table}
+```{r as_table_long}
 all_models_long <- bind_rows(
   aic_tibble,
   mutate(aic_tibble2, Task = "Unsolvable: proportion looked"),
