@@ -69,7 +69,7 @@ To complete my analyses, participant ID had to be reconstructed by matching the 
 
 ### Measure of success
 
-My reproduction will be successful if my re-plotted Figure 2 and per-task models match the original. Figure reproducibility will be assessed visually. Per-task models (for the full, 113-dog sample) will be successfully reproduced if they have the same selected model, AIC within 1 unit of reported, and age/experience coefficients within 0.01 of reported, all of which will be reported in a table.
+My reproduction will be successful if my re-plotted Figure 2 and per-task models match the original. Figure reproducibility will be assessed visually. Per-task models (for the full, 113-dog sample) will be successfully reproduced if they have the same AIC and coefficients for the matching model (AIC within 1 unit of reported and age/experience coefficients within 0.01 of reported), all of which will be reported in a table.
 
 ### Pipeline progress
 
@@ -434,89 +434,6 @@ workingmem_plot <- workingmem_long|>
 
 #### Reproduce per-task models
 
-##### Longitudinal only
-
-```{r models_long}
-task_models <- function(df) {
-  
-m_age <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + (1 | `Dog ID`),
-                 family = binomial, data = df)
-m_exp <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + experience + (1 | `Dog ID`),
-                 family = binomial, data = df) 
-
-tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp))
-  }
-
-aic_tibble <- bind_rows(
-  "Marker gesture"               = task_models(marker_long),
-  "Working memory (Delay)"       = task_models(workingmem_long),
-  "Working memory (Distraction)" = task_models(distraction_long),
-  "Auditory discrimination"      = task_models(auditory_long),
-  "Odor discrimination"         = task_models(odor_long),
-  "Cylinder: inhibitory control" = task_models(detour_long),
-  "Cylinder: reversal learning"  = task_models(reversal_long),
-  "Causal reasoning"             = task_models(causal_long),
-  "Momentary pointing"           = task_models(momentary_long),
-  .id="Task") |> 
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
-
-aic_tibble
-
-```
-
-```{r proplook_models_long}
-
-m_age <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + (1 | `Dog ID`),
-               family = binomial, data = unsolvable_long)
-m_exp <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + experience + (1 | `Dog ID`),
-               family = binomial, data = unsolvable_long)
-
-aic_tibble2 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp))|>
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
-
-aic_tibble2
-```
-
-```{r looktime_models_long}
-
-m_age <- lmer(`Mean Look Time` ~ `Age (wks)` + (1 | `Dog ID`),
-              data = unsolvable_long, REML = FALSE)
-m_exp <- lmer(`Mean Look Time` ~ `Age (wks)` + experience + (1 | `Dog ID`),
-              data = unsolvable_long, REML = FALSE)
-
-
-aic_tibble3 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp))|>
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
-
-aic_tibble3
-```
-
-`correct ~ age + (1 | puppy_ID)` is better for:
-
-- Marker Gesture (AIC = `r round(aic_tibble$AIC_age[aic_tibble$Task == "Marker gesture"], 1)`)
-
-- Working Memory with Distraction (AIC = `r round(aic_tibble$AIC_age[aic_tibble$Task == "Working memory (Distraction)"], 1)`)
-
-- Odor Discrimination (AIC = `r round(aic_tibble$AIC_age[aic_tibble$Task == "Odor discrimination"], 1)`)
-
-- Unsolvable Proportion Looked (AIC = `r round(aic_tibble2$AIC_age, 1)`)
-
-- Unsolvable Average Looking Time (AIC = `r round(aic_tibble3$AIC_age, 1)`).
-
-`correct ~ age + experience + (1 | puppy_ID)` is better for:
-
-- Working Memory with Delay (AIC = `r round(aic_tibble$AIC_age_exp[aic_tibble$Task == "Working memory (Delay)"], 1)`)
-
-- Auditory Discrimination (AIC = `r round(aic_tibble$AIC_age_exp[aic_tibble$Task == "Auditory discrimination"], 1)`)
-
-- Cylinder Inhibitory Control (AIC = `r round(aic_tibble$AIC_age_exp[aic_tibble$Task == "Cylinder: inhibitory control"], 1)`)
-
-- Cylinder Reversal Learning (AIC = `r round(aic_tibble$AIC_age_exp[aic_tibble$Task == "Cylinder: reversal learning"], 1)`)
-
-- Causal Reasoning (AIC = `r round(aic_tibble$AIC_age_exp[aic_tibble$Task == "Causal reasoning"], 1)`).
-
-- Momentary Pointing (AIC = `r round(aic_tibble$AIC_age_exp[aic_tibble$Task == "Momentary pointing"], 1)`).
-
 ##### Longitudinal + Control, like paper
 
 ```{r models_all}
@@ -527,7 +444,9 @@ m_age <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age
 m_exp <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `Dog ID`),
                  family = binomial, data = df2) 
 
-tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp))
+tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
+       b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
+       b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])
   }
 
 aic_tibble4 <- bind_rows(
@@ -554,7 +473,9 @@ m_age <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `A
 m_exp <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `Dog ID`),
                family = binomial, data = unsolvable)
 
-aic_tibble5 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp))|>
+aic_tibble5 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
+                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
+                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
   mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
 
 aic_tibble5
@@ -568,37 +489,95 @@ m_exp <- lmer(`Mean Look Time` ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `D
               data = unsolvable, REML = FALSE)
 
 
-aic_tibble6 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp))|>
+aic_tibble6 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
+                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
+                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
   mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
 
 aic_tibble6
 ```
 
-`correct ~ age + (1 | puppy_ID)` is better for:
+```{r as_table}
+all_models <- bind_rows(
+  aic_tibble4,
+  mutate(aic_tibble5, Task = "Unsolvable: proportion looked"),
+  mutate(aic_tibble6, Task = "Unsolvable: mean look time")
+)
 
-- Marker Gesture (AIC = `r round(aic_tibble4$AIC_age[aic_tibble4$Task == "Marker gesture"], 1)`)
+knitr::kable(all_models, digits = 3, caption = "Model Comparison by Task for Longitudinal + Control Subjects")
+```
 
-- Working Memory with Distraction (AIC = `r round(aic_tibble4$AIC_age[aic_tibble4$Task == "Working memory (Distraction)"], 1)`)
+##### Longitudinal only
 
-- Odor Discrimination (AIC = `r round(aic_tibble4$AIC_age[aic_tibble4$Task == "Odor discrimination"], 1)`)
+```{r models_long}
+task_models <- function(df) {
+  
+m_age <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + (1 | `Dog ID`),
+                 family = binomial, data = df)
+m_exp <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + experience + (1 | `Dog ID`),
+                 family = binomial, data = df) 
 
-- Momentary Pointing (AIC = `r round(aic_tibble4$AIC_age[aic_tibble4$Task == "Momentary pointing"], 1)`)
+tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
+       b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
+       b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])  }
 
-`correct ~ age + experience + (1 | puppy_ID)` is better for:
+aic_tibble <- bind_rows(
+  "Marker gesture"               = task_models(marker_long),
+  "Working memory (Delay)"       = task_models(workingmem_long),
+  "Working memory (Distraction)" = task_models(distraction_long),
+  "Auditory discrimination"      = task_models(auditory_long),
+  "Odor discrimination"         = task_models(odor_long),
+  "Cylinder: inhibitory control" = task_models(detour_long),
+  "Cylinder: reversal learning"  = task_models(reversal_long),
+  "Causal reasoning"             = task_models(causal_long),
+  "Momentary pointing"           = task_models(momentary_long),
+  .id="Task") |> 
+  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
 
-- Working Memory with Delay (AIC = `r round(aic_tibble4$AIC_age_exp[aic_tibble4$Task == "Working memory (Delay)"], 1)`)
+aic_tibble
 
-- Auditory Discrimination (AIC = `r round(aic_tibble4$AIC_age_exp[aic_tibble4$Task == "Auditory discrimination"], 1)`)
+```
 
-- Cylinder Inhibitory Control (AIC = `r round(aic_tibble4$AIC_age_exp[aic_tibble4$Task == "Cylinder: inhibitory control"], 1)`)
+```{r proplook_models_long}
 
-- Cylinder Reversal Learning (AIC = `r round(aic_tibble4$AIC_age_exp[aic_tibble4$Task == "Cylinder: reversal learning"], 1)`)
+m_age <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + (1 | `Dog ID`),
+               family = binomial, data = unsolvable_long)
+m_exp <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + experience + (1 | `Dog ID`),
+               family = binomial, data = unsolvable_long)
 
-- Causal Reasoning (AIC = `r round(aic_tibble4$AIC_age_exp[aic_tibble4$Task == "Causal reasoning"], 1)`).
+aic_tibble2 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
+                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
+                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
+  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
 
-- Unsolvable Proportion Looked (AIC = `r round(aic_tibble5$AIC_age_exp, 1)`)
+aic_tibble2
+```
 
-- Unsolvable Average Looking Time (AIC = `r round(aic_tibble6$AIC_age_exp, 1)`).
+```{r looktime_models_long}
+
+m_age <- lmer(`Mean Look Time` ~ `Age (wks)` + (1 | `Dog ID`),
+              data = unsolvable_long, REML = FALSE)
+m_exp <- lmer(`Mean Look Time` ~ `Age (wks)` + experience + (1 | `Dog ID`),
+              data = unsolvable_long, REML = FALSE)
+
+
+aic_tibble3 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
+                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
+                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
+  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+
+aic_tibble3
+```
+
+```{r as_table}
+all_models_long <- bind_rows(
+  aic_tibble,
+  mutate(aic_tibble2, Task = "Unsolvable: proportion looked"),
+  mutate(aic_tibble3, Task = "Unsolvable: mean look time")
+)
+
+knitr::kable(all_models_long, digits = 3, caption = "Model Comparison by Task for Longitudinal Subjects")
+```
 
 #### Confirmatory mixed-effects logistic model
 
@@ -890,10 +869,6 @@ anova(update(m1_sim1000, . ~ . - age:task), m1_sim1000) #sig agextask for n=1000
 ### Key analysis
 
 The analyses as specified in the analysis plan.
-
-![](images/clipboard-3089209583.png){width="300"}
-
-![](images/clipboard-4081458921.png){width="300"}
 
 ### Exploratory analyses
 
