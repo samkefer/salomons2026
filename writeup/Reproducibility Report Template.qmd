@@ -643,14 +643,14 @@ anova(m1, m3)     # no sig improvement, m1 has slightly better AIC
 m_final <- m3
 
 # KEY RESULT: age x task interaction
-m_final_noint <- update(m_final, . ~ . - age:task)
+m_final_noint <- stats::update(m_final, . ~ . - age:task)
 lrt_m3 <-anova(m_final_noint, m_final)
 
 # m1 has marginally lower AIC so using as robustness check
 m_final2 <- m1
 
 # age x task interaction
-m_final2_noint <- update(m_final2, . ~ . - age:task)
+m_final2_noint <- stats::update(m_final2, . ~ . - age:task)
 lrt_m1 <- anova(m_final2_noint, m_final2)
 
 ```
@@ -683,7 +683,7 @@ m_ae <- glmer(cbind(correct, total - correct) ~ age * task + experience * task +
               family = binomial, data = all_tasks_all, control = ctrl)
 
 # Does age x task matter AFTER accounting for task-specific experience effects?
-m_ae_noint <- update(m_ae, . ~ . - age:task)
+m_ae_noint <- stats::update(m_ae, . ~ . - age:task)
 lrt_ae <- anova(m_ae_noint, m_ae)
 lrt_ae
 
@@ -800,8 +800,8 @@ sim1000 <- simulate_m1(1000)
 ```
 
 ```{r refitted_estimates}
-m1_sim91   <- update(m1, data = sim91)
-m1_sim1000 <- update(m1, data = sim1000)
+m1_sim91   <- stats::update(m1, data = sim91)
+m1_sim1000 <- stats::update(m1, data = sim1000)
 
 m1_check <- tibble(term      = names(b),
                    true      = b,
@@ -894,8 +894,8 @@ ggsave("sim_vis.png", sim_vis,
 
 ```{r agextask_simulated}
 
-anova(update(m1_sim91,   . ~ . - age:task), m1_sim91) #sig agextask for n=91
-anova(update(m1_sim1000, . ~ . - age:task), m1_sim1000) #sig agextask for n=1000
+anova(stats::update(m1_sim91,   . ~ . - age:task), m1_sim91) #sig agextask for n=91
+anova(stats::update(m1_sim1000, . ~ . - age:task), m1_sim1000) #sig agextask for n=1000
 ```
 
 ### Key analysis
