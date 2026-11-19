@@ -81,32 +81,35 @@ I have finished all of the coding for my project and just have to work on my wri
 
 ```{r load_packages}
 library(tidyverse)
-library(readxl)
 library(patchwork)
 library(lme4)
 library(assertthat)
+library(renv)
+library(here)
 ```
 
 ```{r load_data}
-auditory <- read_csv ("../Data/CleanedTests/CleanedData_Auditory_Discrimination.csv")
+here::i_am("writeup/Reproducibility Report Template.qmd")
 
-causal <- read_csv ("../Data/CleanedTests/CleanedData_Causal_Reasoning.csv")
+auditory <- read_csv (here("Data/CleanedTests/CleanedData_Auditory_Discrimination.csv"))
 
-detour <- read_csv ("../Data/CleanedTests/CleanedData_Cylinder_Inhibitory_Control.csv")
+causal <- read_csv (here("Data/CleanedTests/CleanedData_Causal_Reasoning.csv"))
 
-reversal <- read_csv ("../Data/CleanedTests/CleanedData_Cylinder_Reversal_Learning.csv")
+detour <- read_csv (here("Data/CleanedTests/CleanedData_Cylinder_Inhibitory_Control.csv"))
 
-marker <- read_csv ("../Data/CleanedTests/CleanedData_Marker_Gesture.csv")
+reversal <- read_csv (here("Data/CleanedTests/CleanedData_Cylinder_Reversal_Learning.csv"))
 
-momentary <- read_csv ("../Data/CleanedTests/CleanedData_Momentary_Pointing.csv")
+marker <- read_csv (here("Data/CleanedTests/CleanedData_Marker_Gesture.csv"))
 
-odor <- read_csv ("../Data/CleanedTests/CleanedData_Odor_Discrimination.csv")
+momentary <- read_csv (here("Data/CleanedTests/CleanedData_Momentary_Pointing.csv"))
 
-unsolvable <- read_csv ("../Data/CleanedTests/CleanedData_Unsolvable_Eye_Contact.csv")
+odor <- read_csv (here("Data/CleanedTests/CleanedData_Odor_Discrimination.csv"))
 
-workingmem <- read_csv ("../Data/CleanedTests/CleanedData_Working_Memory_Delay.csv")
+unsolvable <- read_csv (here("Data/CleanedTests/CleanedData_Unsolvable_Eye_Contact.csv"))
 
-distraction <- read_csv ("../Data/CleanedTests/CleanedData_Working_Memory_Distraction.csv")
+workingmem <- read_csv (here("Data/CleanedTests/CleanedData_Working_Memory_Delay.csv"))
+
+distraction <- read_csv (here("Data/CleanedTests/CleanedData_Working_Memory_Distraction.csv"))
 
 ```
 
