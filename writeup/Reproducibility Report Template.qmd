@@ -5,7 +5,11 @@ date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
   pdf:
     toc: true
-    toc_depth: 3
+    toc-depth: 3
+    include-in-header:
+      text: |
+        \usepackage{threeparttable}
+    
 ---
 
 <!-- Reproducibility reports should all use this template to standardize reporting across projects. These reports will be public supplementary materials that accompany the summary report(s) of the aggregate results. -->
@@ -86,6 +90,8 @@ library(lme4)
 library(assertthat)
 library(renv)
 library(here)
+library(papaja)
+library(emmeans)
 ```
 
 ```{r load_data}
@@ -117,306 +123,64 @@ distraction <- read_csv (here("Data/CleanedTests/CleanedData_Working_Memory_Dist
 
 #### Individual Plots
 
-```{r auditory_plot}
-auditory_long <- auditory |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-auditory_plot <- auditory_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Auditory Discrimination")
+```{r plot_helper}
+plot_task <- function(df, title, x_name = "", y = "Proportion Correct", alpha = 0.2) {
+  df |>
+    ggplot(aes(x = `Age (wks)`, y = .data[[y]])) +
+    geom_jitter(alpha = alpha, width = 0.05, height = 0.05) +
+    geom_smooth(method = "loess", color = "black") +
+    scale_x_continuous(
+      name = x_name,
+      limits = c(8, 21),
+      oob = scales::oob_keep,
+      breaks = seq(8, 20, by = 2)
+    ) +
+    scale_y_continuous(
+      name = y,
+      limits = c(0, 1),
+      oob = scales::oob_keep,
+      breaks = seq(0, 1, by = 0.25),
+      labels = as.character
+    ) +
+    labs(title = title)
+}
 ```
 
-```{r causal_plot}
-causal_long <- causal |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-causal_plot <- causal_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "Age (weeks)",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Causal Reasoning")
-
-print(causal_plot)
+```{r longitudinal_data}
+auditory_long    <- filter(auditory,    Status == "Longitudinal")
+causal_long      <- filter(causal,      Status == "Longitudinal")
+detour_long      <- filter(detour,      Status == "Longitudinal")
+distraction_long <- filter(distraction, Status == "Longitudinal")
+marker_long      <- filter(marker,      Status == "Longitudinal")
+momentary_long   <- filter(momentary,   Status == "Longitudinal")
+odor_long        <- filter(odor,        Status == "Longitudinal")
+reversal_long    <- filter(reversal,    Status == "Longitudinal")
+unsolvable_long  <- filter(unsolvable,  Status == "Longitudinal")
+workingmem_long  <- filter(workingmem,  Status == "Longitudinal")
 ```
 
-```{r detour_plot}
-detour_long <- detour |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
+```{r task_plots}
+marker_plot      <- plot_task(marker_long,      "Marker Gesture")
+workingmem_plot  <- plot_task(workingmem_long,  "Working Memory (Delay)")
+distraction_plot <- plot_task(distraction_long, "Working Memory (Distraction)")
+auditory_plot    <- plot_task(auditory_long,    "Auditory Discrimination")
+odor_plot        <- plot_task(odor_long,        "Odor Discrimination")
+detour_plot      <- plot_task(detour_long,      "Cylinder: Inhibitory Control")
+reversal_plot    <- plot_task(reversal_long,    "Cylinder: Reversal Learning")
+causal_plot      <- plot_task(causal_long,      "Causal Reasoning",   "Age (weeks)")
+momentary_plot   <- plot_task(momentary_long,   "Momentary Pointing", "Age (weeks)")
 
-detour_plot <- detour_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Cylinder: Inhibitory Control")
-```
+proplooked_plot  <- plot_task(unsolvable_long, "Unsolvable (Proportion Looked)", "Age (weeks)",
+                              y = "Proportion Trials Looked")
 
-```{r distraction_plot}
-distraction_long <- distraction |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-distraction_plot <- distraction_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2),
-    labels = as.character
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Working Memory (Distraction)")
-```
-
-```{r marker_plot}
-marker_long <- marker |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-marker_plot <- marker_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Marker Gesture")
-```
-
-```{r momentary_plot}
-momentary_long <- momentary |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-momentary_plot <- momentary_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "Age (weeks)",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Momentary Pointing")
-```
-
-```{r odor_plot}
-odor_long <- odor |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-odor_plot <- odor_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Odor Discrimination")
-```
-
-```{r reversal_plot}
-reversal_long <- reversal |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-reversal_plot <- reversal_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Cylinder: Reversal Learning")
-```
-
-```{r unsolvable_plots}
-unsolvable_long <- unsolvable |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Trials Looked` = as.numeric(`Proportion Trials Looked`),
-    `Mean Look Time` = as.numeric(`Mean Look Time`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
-  )
-
-proplooked_plot <- unsolvable_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Trials Looked`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "Age (weeks)",    
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Unsolvable (Proportion Looked)")
-
-looktime_plot <- unsolvable_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Mean Look Time`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name = "",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
+looktime_plot    <- plot_task(unsolvable_long, "Unsolvable (Looking Time)",
+                              y = "Mean Look Time") +
   scale_y_continuous(
     name = "Mean Look Time (s)",
-    limits = c(0, 20), 
+    limits = c(0, 20),
     oob = scales::oob_keep,
     breaks = seq(0, 20, by = 5)
-  ) +
-  labs(title = "Unsolvable (Looking Time)")
-```
-
-```{r workingmem_plot}
-workingmem_long <- workingmem |>
-  filter(Status=="Longitudinal") |>
-   mutate(
-    `Age (wks)` = as.numeric(`Age (wks)`),
-    `Proportion Correct` = as.numeric(`Proportion Correct`),
-     `experience` = as.numeric(`# Prior Test Sessions`)
   )
-
-workingmem_plot <- workingmem_long|>
-  ggplot(aes(x=`Age (wks)`, y = `Proportion Correct`))+
-  geom_jitter(alpha=0.2, width = 0.05, height = 0.05)+
-  geom_smooth(method="loess", color = "black") +
-  scale_x_continuous(
-    name ="",
-    limits = c(8, 21), 
-    oob = scales::oob_keep,
-    breaks = seq(8, 20, by = 2)
-  ) +
-  scale_y_continuous(
-    limits = c(0, 1), 
-    oob = scales::oob_keep,
-    breaks = seq(0, 1, by = 0.25),
-    labels = as.character
-  ) +
-  labs(title = "Working Memory (Delay)")
 ```
 
 #### Figure 2
@@ -434,7 +198,6 @@ workingmem_plot <- workingmem_long|>
     axis.text  = element_text(size = 9, colour = "black")
   )
 
-assert_that
 ```
 
 #### Reproduce per-task models
@@ -442,6 +205,14 @@ assert_that
 ##### Longitudinal + Control, like paper
 
 ```{r models_all}
+
+compare_models <- function(m_age, m_exp) {
+  tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
+         b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
+         b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3]) |>
+    mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+}
+
 task_models2 <- function(df2) {
   
 m_age <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + (1 | `Dog ID`),
@@ -449,12 +220,10 @@ m_age <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age
 m_exp <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `Dog ID`),
                  family = binomial, data = df2) 
 
-tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
-       b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
-       b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])
+compare_models(m_age, m_exp)
   }
 
-aic_tibble4 <- bind_rows(
+aic_tibble <- bind_rows(
   "Marker gesture"               = task_models2(marker),
   "Working memory (Delay)"       = task_models2(workingmem),
   "Working memory (Distraction)" = task_models2(distraction),
@@ -464,10 +233,9 @@ aic_tibble4 <- bind_rows(
   "Cylinder: reversal learning"  = task_models2(reversal),
   "Causal reasoning"             = task_models2(causal),
   "Momentary pointing"           = task_models2(momentary),
-  .id="Task") |> 
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+  .id="Task")
 
-aic_tibble4
+aic_tibble
 
 ```
 
@@ -478,12 +246,9 @@ m_age <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `A
 m_exp <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `Dog ID`),
                family = binomial, data = unsolvable)
 
-aic_tibble5 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
-                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
-                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+aic_tibble2 <- compare_models(m_age, m_exp)
 
-aic_tibble5
+aic_tibble2
 ```
 
 ```{r looktime_models_all}
@@ -494,52 +259,37 @@ m_exp <- lmer(`Mean Look Time` ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `D
               data = unsolvable, REML = FALSE)
 
 
-aic_tibble6 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
-                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
-                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+aic_tibble3 <- compare_models(m_age, m_exp)
 
-aic_tibble6
+aic_tibble3
 ```
 
 ```{r as_table}
 all_models <- bind_rows(
-  aic_tibble4,
-  mutate(aic_tibble5, Task = "Unsolvable: proportion looked"),
-  mutate(aic_tibble6, Task = "Unsolvable: mean look time")
+  aic_tibble,
+  mutate(aic_tibble2, Task = "Unsolvable: proportion looked"),
+  mutate(aic_tibble3, Task = "Unsolvable: mean look time")
 )
 
-knitr::kable(all_models, digits = 3, caption = "Model Comparison by Task for Longitudinal + Control Subjects")
+apa_table(all_models, digits = 3, caption = "Model Comparison by Task for Longitudinal + Control Subjects")
 ```
 
 ##### Longitudinal only
 
 ```{r models_long}
-task_models <- function(df) {
-  
-m_age <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + (1 | `Dog ID`),
-                 family = binomial, data = df)
-m_exp <- glmer(cbind(`Trials Correct`, `Total Trials` - `Trials Correct`) ~ `Age (wks)` + experience + (1 | `Dog ID`),
-                 family = binomial, data = df) 
+aic_tibble4 <- bind_rows(
+  "Marker gesture"               = task_models2(marker_long),
+  "Working memory (Delay)"       = task_models2(workingmem_long),
+  "Working memory (Distraction)" = task_models2(distraction_long),
+  "Auditory discrimination"      = task_models2(auditory_long),
+  "Odor discrimination"         = task_models2(odor_long),
+  "Cylinder: inhibitory control" = task_models2(detour_long),
+  "Cylinder: reversal learning"  = task_models2(reversal_long),
+  "Causal reasoning"             = task_models2(causal_long),
+  "Momentary pointing"           = task_models2(momentary_long),
+  .id="Task")
 
-tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
-       b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
-       b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])  }
-
-aic_tibble <- bind_rows(
-  "Marker gesture"               = task_models(marker_long),
-  "Working memory (Delay)"       = task_models(workingmem_long),
-  "Working memory (Distraction)" = task_models(distraction_long),
-  "Auditory discrimination"      = task_models(auditory_long),
-  "Odor discrimination"         = task_models(odor_long),
-  "Cylinder: inhibitory control" = task_models(detour_long),
-  "Cylinder: reversal learning"  = task_models(reversal_long),
-  "Causal reasoning"             = task_models(causal_long),
-  "Momentary pointing"           = task_models(momentary_long),
-  .id="Task") |> 
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
-
-aic_tibble
+aic_tibble4
 
 ```
 
@@ -547,31 +297,25 @@ aic_tibble
 
 m_age <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + (1 | `Dog ID`),
                family = binomial, data = unsolvable_long)
-m_exp <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + experience + (1 | `Dog ID`),
+m_exp <- glmer(cbind(`# Trials Looked`, `Total Trials` - `# Trials Looked`) ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `Dog ID`),
                family = binomial, data = unsolvable_long)
 
-aic_tibble2 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
-                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
-                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+aic_tibble5 <- compare_models(m_age, m_exp)
 
-aic_tibble2
+aic_tibble5
 ```
 
 ```{r looktime_models_long}
 
 m_age <- lmer(`Mean Look Time` ~ `Age (wks)` + (1 | `Dog ID`),
               data = unsolvable_long, REML = FALSE)
-m_exp <- lmer(`Mean Look Time` ~ `Age (wks)` + experience + (1 | `Dog ID`),
+m_exp <- lmer(`Mean Look Time` ~ `Age (wks)` + `# Prior Test Sessions` + (1 | `Dog ID`),
               data = unsolvable_long, REML = FALSE)
 
 
-aic_tibble3 <- tibble(AIC_age = AIC(m_age), AIC_age_exp = AIC(m_exp),
-                      b_age  = fixef(m_exp)[2], SE_age = sqrt(diag(vcov(m_exp)))[2],
-                      b_exp  = fixef(m_exp)[3], SE_exp = sqrt(diag(vcov(m_exp)))[3])|> 
-  mutate(Best = if_else(AIC_age_exp < AIC_age, "age + experience", "age"))
+aic_tibble6 <- compare_models(m_age, m_exp)
 
-aic_tibble3
+aic_tibble6
 ```
 
 ```{r as_table_long}
@@ -581,7 +325,7 @@ all_models_long <- bind_rows(
   mutate(aic_tibble3, Task = "Unsolvable: mean look time")
 )
 
-knitr::kable(all_models_long, digits = 3, caption = "Model Comparison by Task for Longitudinal Subjects")
+apa_table(all_models_long, digits = 3, caption = "Model Comparison by Task for Longitudinal Subjects")
 ```
 
 #### Confirmatory mixed-effects logistic model
@@ -626,32 +370,25 @@ m1 <- glmer(cbind(correct, total - correct) ~ age * task + (1 | id) + (1 | id:ta
 m2 <- glmer(cbind(correct, total - correct) ~ age * task + (1 + age | id) + (1 | id:task),
             family = binomial, data = all_tasks, control = ctrl)
 
-isSingular(m2)   # TRUE = random effects too complex for the data
-anova(m1, m2)    # does the random slope improve fit?
+isSingular(m2)   # TRUE = did not converge
+anova(m1, m2)    # p-value not interpretable
 
 # same slope as m2, no intercept-slope correlation
 m3 <- glmer(cbind(correct, total - correct) ~ age * task + (1 + age || id) + (1 | id:task),
             family = binomial, data = all_tasks, control = ctrl)
 
 isSingular(m3)    # FALSE = fitted cleanly
-anova(m1, m3)     # no sig improvement, m1 has slightly better AIC
+anova(m1, m3)     # no improvement over m1 (p ≈ .51); m1 has slightly lower AIC
 
 ```
 
 ```{r interaction_test}
-# m3 most complex model that converged without warnings
-m_final <- m3
 
+# m3: random age slopes without the correlation term; m2 (with the correlation) did not fit reliably.
+# m1 (lower AIC) is the robustness check and gives the same conclusion.
 # KEY RESULT: age x task interaction
-m_final_noint <- stats::update(m_final, . ~ . - age:task)
-lrt_m3 <-anova(m_final_noint, m_final)
-
-# m1 has marginally lower AIC so using as robustness check
-m_final2 <- m1
-
-# age x task interaction
-m_final2_noint <- stats::update(m_final2, . ~ . - age:task)
-lrt_m1 <- anova(m_final2_noint, m_final2)
+lrt_m3 <- anova(stats::update(m3, . ~ . - age:task), m3)
+lrt_m1 <- anova(stats::update(m1, . ~ . - age:task), m1)
 
 ```
 
@@ -675,7 +412,6 @@ all_tasks_all <- bind_rows(
             correct    = `Trials Correct`,
             total      = `Total Trials`)
 
-cor(all_tasks_all$age, all_tasks_all$experience)   #0.76
 
 # Each task gets its own age slope AND its own experience slope
 m_ae <- glmer(cbind(correct, total - correct) ~ age * task + experience * task +
@@ -690,23 +426,19 @@ lrt_ae
 assert_that(n_distinct(all_tasks_all$id, na.rm = TRUE) == 113) #TRUE
 ```
 
-The age × task interaction was significant in the random-slope model (m3), \$\\chi\^2\$(`r lrt_m3$Df[2]`) = `r round(lrt_m3$Chisq[2], 2)`, p `r format.pval(lrt_m3$"Pr(>Chisq)"[2], digits = 2, eps = .001)`, and in the random-intercepts model (m1), \$\\chi\^2\$ (`r lrt_m1$Df[2]`) = `r round(lrt_m1$Chisq[2], 2)`, p `r format.pval(lrt_m1$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. This indicates that the 9 tasks do not share one developmental rate, consistent with the multiple intelligences hypothesis. Because age and experience are highly correlated in the longitudinal puppies (r = `r round(r_age_exp, 2)`), this model cannot disentangle the model whether these task differences reflect maturation, accumulated testing experience, or both.
+The age × task interaction was significant in the random-slope model (m3), \$\\chi\^2\$(`r lrt_m3$Df[2]`) = `r round(lrt_m3$Chisq[2], 2)`, p `r format.pval(lrt_m3$"Pr(>Chisq)"[2], digits = 2, eps = .001)`, and in the random-intercepts model (m1), \$\\chi\^2\$ (`r lrt_m1$Df[2]`) = `r round(lrt_m1$Chisq[2], 2)`, p `r format.pval(lrt_m1$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. This indicates that the 9 tasks do not share one developmental rate, consistent with the multiple intelligences hypothesis. Because age and experience are highly correlated in the longitudinal puppies (r = `r round(r_age_exp, 2)`), this model cannot disentangle whether these task differences reflect maturation, accumulated testing experience, or both.
 
 After adding the 22 control puppies and task-specific experience effects, the age × task interaction was still significant, \$\\chi\^2\$ (`r lrt_ae$Df[2]`) = `r round(lrt_ae$Chisq[2], 2)`, p `r format.pval(lrt_ae$"Pr(>Chisq)"[2], digits = 2, eps = .001)`. While part of the longitudinal age × task interaction effect may be shared with experience , the results from the 113-subject sample further support the multiple intelligences hypothesis, although age and experience remain partly correlated (r = `r round(cor(all_tasks_all$age, all_tasks_all$experience), 2)`).
 
 #### Effect Sizes (Longitudinal)
 
-```{r}
-library(emmeans)
+```{r effectsize_long}
 
 # age slope per task on the log-odds scale (exp() gives odds ratios)
-slopes <- emtrends(m_final, ~ task, var = "age")
-slopes_table <- as_tibble(slopes) |>
-  mutate(OR_per_week = exp(age.trend))
-slopes_table
+slopes <- emtrends(m3, ~ task, var = "age")
 
 # age slope per task on the probability scale
-slopes_prob <- emtrends(m_final, ~ task, var = "age", regrid = "response")
+slopes_prob <- emtrends(m3, ~ task, var = "age", regrid = "response")
 slopes_prob
 
 prob_table <- as_tibble(slopes_prob) |>
@@ -730,11 +462,6 @@ effect_table
 between_tasks <- as_tibble(pairs(slopes)) |>
   mutate(ratio_of_ORs = exp(estimate))
 between_tasks
-
-between_tasks_sig <- between_tasks |>
-  mutate(sig = p.value<0.05) |>
-  count(sig == "TRUE")
-between_tasks_sig
 ```
 
 Each task's age slope is reported as an odds ratio (OR) per week. Effects were largest for cylinder inhibitory control (OR \[95% CI\] = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Cylinder: inhibitory control"]`), cylinder reversal learning (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Cylinder: reversal learning"]`), and causal reasoning (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Causal reasoning"]`); smaller for marker gesture (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Marker gesture"]`), working memory with distraction (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Working memory (Distraction)"]`), and working memory with delay (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Working memory (Delay)"]`); absent for momentary pointing (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Momentary pointing"]`); and slightly negative for auditory discrimination (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Auditory discrimination"]`) and odor discrimination (OR = `r effect_table$"OR per week [95% CI]"[effect_table$Task == "Odor discrimination"]`).
@@ -756,7 +483,6 @@ print(task_pars)
 ```
 
 ```{r simulation}
-set.seed(2026)
 
 vc        <- as.data.frame(VarCorr(m1))
 sd_id     <- vc$sdcor[vc$grp == "id"]
@@ -794,64 +520,80 @@ simulate_m1 <- function(n_dogs, n_trials = 4) {
               total, correct,
               `Proportion Correct` = correct / total)
 }
-
-sim91   <- simulate_m1(91)
-sim1000 <- simulate_m1(1000)
 ```
 
-```{r refitted_estimates}
-m1_sim91   <- stats::update(m1, data = sim91)
-m1_sim1000 <- stats::update(m1, data = sim1000)
+```{r sim_replicates_91, eval=FALSE}
+run_one <- function(i, n_dogs) {
+  d   <- simulate_m1(n_dogs)
+  fit <- stats::update(m1, data = d)
+  lrt <- anova(stats::update(fit, . ~ . - age:task), fit)
+  as_tibble(emtrends(fit, ~ task, var = "age", data = d)) |>
+    mutate(task = as.character(task)) |>
+    left_join(select(task_pars, task, true_slope = slope), by = "task") |>
+    transmute(sim = i, n_dogs, task, true_slope,
+              est = age.trend, lo = asymp.LCL, hi = asymp.UCL,
+              p_int = lrt$`Pr(>Chisq)`[2])
+}
 
-m1_check <- tibble(term      = names(b),
-                   true      = b,
-                   sim_N91   = fixef(m1_sim91),
-                   sim_N1000 = fixef(m1_sim1000))
-print(m1_check) #yay
+set.seed(2026)
+sim_results_91 <- map_dfr(1:100, run_one, n_dogs = 91)
+write_csv(sim_results_91, here::here("Data/sim_results_91.csv"))
 ```
 
-```{r side-by-side_graphs, fig.width = 10, fig.height = 9}
+```{r sim_replicates_1000, eval=FALSE}
+set.seed(2027)
+sim_results_1000 <- map_dfr(1:20, run_one, n_dogs = 1000)
+write_csv(sim_results_1000, here::here("Data/sim_results_1000.csv"))
+```
+
+```{r sim_summary}
+sim_results <- bind_rows(read_csv(here::here("Data/sim_results_91.csv")), 
+                         read_csv(here::here("Data/sim_results_1000.csv")))
+
+power <- sim_results |>
+  distinct(n_dogs, sim, p_int) |>
+  group_by(n_dogs) |>
+  summarise(power = mean(p_int < .05))
+
+recovery <- sim_results |>
+  group_by(n_dogs, task) |>
+  summarise(bias     = mean(est - true_slope),
+            coverage = mean(lo <= true_slope & true_slope <= hi),
+            .groups  = "drop")
+power
+recovery
+```
+
+## Running the actual simulations, don't run unless redoing from scratch
+
+```{r side-by-side_graphs}
+#| fig-width: 7
+#| fig-height: 7.5
+
+set.seed(2026)
+sim1000 <- simulate_m1(1000)   # one example dataset, for the figure only
 
 og_vis <- wrap_plots(
-  marker_plot,   workingmem_plot, distraction_plot,
-  auditory_plot, odor_plot,       detour_plot,
-  reversal_plot, causal_plot,     momentary_plot,
+  list(marker_plot,   workingmem_plot, distraction_plot,
+       auditory_plot, odor_plot,       detour_plot,
+       reversal_plot, causal_plot,     momentary_plot) |>
+    map(\(p) p + theme(plot.title = element_text(size = 9))),   # panel titles
   ncol = 3
 ) +
   plot_layout(axis_titles = "collect") +
   plot_annotation(
     title = "Original Data (N = 91)",
-    theme = theme(plot.title = element_text(size = 20, hjust = 0.5))
+    theme = theme(plot.title = element_text(size = 14, hjust = 0.5))
   ) &
   labs(x = "Age (weeks)", y = "Proportion Correct") &
   theme(
-    axis.text  = element_text(size = 14),  
-    axis.title = element_text(size = 16)  
+    axis.text  = element_text(size = 8),    # tick labels
+    axis.title = element_text(size = 10)    # "Age (weeks)", "Proportion Correct"
   )
 
-ggsave("og_vis.png", og_vis,
-       width = 14, height = 12, units = "in", dpi = 300, bg = "white")
-
-
-plot_task <- function(df, title, x_name = "", alpha = 0.2) {
-  df |>
-    ggplot(aes(x = `Age (wks)`, y = `Proportion Correct`)) +
-    geom_jitter(alpha = alpha, width = 0.05, height = 0.05) +
-    geom_smooth(method = "loess", color = "black") +
-    scale_x_continuous(
-      name = x_name,
-      limits = c(8, 21),
-      oob = scales::oob_keep,
-      breaks = seq(8, 20, by = 2)
-    ) +
-    scale_y_continuous(
-      limits = c(0, 1),
-      oob = scales::oob_keep,
-      breaks = seq(0, 1, by = 0.25),
-      labels = as.character
-    ) +
-    labs(title = title)
-}
+ggsave(here::here("og_vis.png"), og_vis,
+       width = 7, height = 7.5, units = "in", dpi = 300, bg = "white")
+og_vis
 
 sim_task <- function(task_name, title, x_name = "") {
   sim1000 |>
@@ -870,39 +612,39 @@ causal_sim      <- sim_task("Causal reasoning",             "Causal Reasoning", 
 momentary_sim   <- sim_task("Momentary pointing",           "Momentary Pointing",          "Age (weeks)")
 
 sim_vis <- wrap_plots(
-  marker_sim,   workingmem_sim, distraction_sim,
-  auditory_sim, odor_sim,       detour_sim,
-  reversal_sim, causal_sim,     momentary_sim,
+  list(marker_sim,   workingmem_sim, distraction_sim,
+       auditory_sim, odor_sim,       detour_sim,
+       reversal_sim, causal_sim,     momentary_sim) |>
+    map(\(p) p + theme(plot.title = element_text(size = 9))),   # panel titles
   ncol = 3
 ) +
   plot_layout(axis_titles = "collect") +
   plot_annotation(
     title = "Simulated Data (N = 1000)",
-    theme = theme(plot.title = element_text(size = 20, hjust = 0.5))
+    theme = theme(plot.title = element_text(size = 14, hjust = 0.5))
   ) &
   labs(x = "Age (weeks)", y = "Proportion Correct") &
   theme(
-    axis.text  = element_text(size = 14),  # tick labels (8, 10, 0.25, ...)
-    axis.title = element_text(size = 16)   # "Age (weeks)", "Proportion Correct"
+    axis.text  = element_text(size = 8),
+    axis.title = element_text(size = 10)
   )
 
-ggsave("sim_vis.png", sim_vis,
-       width = 14, height = 12, units = "in", dpi = 300, bg = "white")
-```
-
-\
-
-```{r agextask_simulated}
-
-anova(stats::update(m1_sim91,   . ~ . - age:task), m1_sim91) #sig agextask for n=91
-anova(stats::update(m1_sim1000, . ~ . - age:task), m1_sim1000) #sig agextask for n=1000
+ggsave(here::here("sim_vis.png"), sim_vis,
+       width = 7, height = 7.5, units = "in", dpi = 300, bg = "white")
+sim_vis
 ```
 
 ### Key analysis
 
 The analyses as specified in the analysis plan.
 
-`knitr::include_graphics(og_vis)` `knitr::include_graphics(sim_vis)`
+```{r}
+og_vis
+```
+
+```{r}
+sim_vis
+```
 
 ### Exploratory analyses
 
